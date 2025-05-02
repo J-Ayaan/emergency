@@ -3,10 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { EmergencyMessageModule } from './emergency-message/emergency-message.module';
 import { EmergencyRoomModule } from './emergency-room/emergency-room.module';
 import { EmergencyBedModule } from './emergency-bed/emergency-bed.module';
 import { SevereIllnessModule } from './severe-illness/severe-illness.module';
+import { EmergencyMessageModule } from './emergency-message/emergency-message.module';
 
 @Module({
   imports: [
@@ -21,12 +21,13 @@ import { SevereIllnessModule } from './severe-illness/severe-illness.module';
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_DATABASE || 'public_data',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+      synchronize: false,
+      logging: true,
     }),
-    EmergencyMessageModule,
-    EmergencyRoomModule,
     EmergencyBedModule,
     SevereIllnessModule,
+    EmergencyMessageModule,
+    EmergencyRoomModule,
   ],
   controllers: [AppController],
   providers: [AppService],

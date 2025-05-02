@@ -244,4 +244,23 @@ export class EmergencyRoomService {
       throw error;
     }
   }
+
+  async getEmergencyRoomHpids() {
+    try {
+      const rooms = await this.emergencyRoomRepository.find({
+        select: ['hpid'],
+      });
+      return rooms.map(room => room.hpid);
+    } catch (error) {
+      console.error('hpid 목록 조회 중 오류 발생:', error);
+      throw error;
+    }
+  }
+
+  async getHpidList() {
+    const emergencyRooms = await this.emergencyRoomRepository.find({
+      select: ['hpid'],
+    });
+    return emergencyRooms.map(room => room.hpid);
+  }
 } 

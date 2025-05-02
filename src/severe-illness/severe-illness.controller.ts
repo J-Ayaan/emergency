@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { SevereIllnessService } from './severe-illness.service';
-import { SevereIllnessRequestDto } from './dto/severe-illness.dto';
+import { SevereIllnessRequestDto, SevereIllnessResponseDto } from './dto/severe-illness.dto';
 import { ApiExcludeEndpoint, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('중증질환 수용 가능 병원 정보')
@@ -9,29 +9,25 @@ export class SevereIllnessController {
   constructor(private readonly severeIllnessService: SevereIllnessService) {}
 
   @Get()
-  @ApiOperation({ summary: '중증질환 수용 가능 병원 정보 조회' })
-  @ApiQuery({ name: 'STAGE1', required: true, description: '주소 시도' })
-  @ApiQuery({ name: 'STAGE2', required: true, description: '주소 시군구' })
-  @ApiQuery({ name: 'SM_TYPE', required: false, description: '질환 코드 (1~28)' })
-  @ApiQuery({ name: 'pageNo', required: false, description: '페이지 번호', type: 'number' })
-  @ApiQuery({ name: 'numOfRows', required: false, description: '페이지당 건수', type: 'number' })
-  @ApiResponse({ status: 200, description: '성공적으로 데이터를 조회했습니다.' })
-  async getSevereIllnessInfo(
-    @Query('STAGE1') STAGE1: string,
-    @Query('STAGE2') STAGE2: string,
-    @Query('SM_TYPE') SM_TYPE?: string,
-    @Query('pageNo') pageNo?: string,
-    @Query('numOfRows') numOfRows?: string,
-  ) {
-    const params: SevereIllnessRequestDto = {
-      STAGE1,
-      STAGE2,
-      SM_TYPE,
-      pageNo: pageNo ? Number(pageNo) : undefined,
-      numOfRows: numOfRows ? Number(numOfRows) : undefined,
-    };
-    const result = await this.severeIllnessService.getSevereIllnessInfo(params);
-    return this.convertToKoreanTime(result);
+  @ApiOperation({
+    summary: '중증질환자 수용 가능 병원 정보 조회',
+    description: '지역별 중증질환자 수용 가능 병원의 정보와 치료 가능 질환을 조회합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '중증질환자 수용 가능 병원 정보 조회 성공',
+    type: SevereIllnessResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: '잘못된 요청 파라미터',
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버 내부 오류',
+  })
+  async getSevereIllness(@Query() query: SevereIllnessRequestDto): Promise<SevereIllnessResponseDto> {
+    return this.severeIllnessService.getSevereIllnessInfo(query);
   }
 
   // @Get('test')
