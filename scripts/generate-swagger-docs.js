@@ -1,64 +1,55 @@
-const fs = require('fs');
-const path = require('path');
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerAutogen = require('swagger-autogen')();
 
-const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Emergency Public Data API',
-      version: '1.0.0',
-      description: '응급의료기관 정보를 제공하는 공공데이터 API 서비스',
-    },
-    servers: [
-      {
-        url: 'http://localhost:3000',
-        description: '개발 서버',
-      },
-    ],
+const doc = {
+  info: {
+    title: '응급의료정보 API',
+    description: '응급의료정보 조회를 위한 API 문서',
+    version: '1.0.0',
+    contact: {
+      name: 'API Support',
+      email: 'support@example.com'
+    }
   },
-  apis: ['./src/**/*.ts'],
+  host: 'localhost:3000',
+  basePath: '/',
+  schemes: ['http'],
+  consumes: ['application/json'],
+  produces: ['application/json'],
+  tags: [
+    {
+      name: '응급실 실시간 가용병상정보',
+      description: '응급실의 실시간 병상 정보 조회 API'
+    },
+    {
+      name: '중증질환 수용 가능 병원 정보',
+      description: '중증질환 수용 가능 병원 정보 조회 API'
+    }
+  ],
+  securityDefinitions: {
+    bearerAuth: {
+      type: 'apiKey',
+      in: 'header',
+      name: 'Authorization',
+      description: 'Bearer 토큰을 입력하세요'
+    }
+  },
+  definitions: {
+    ErrorResponse: {
+      statusCode: 'number',
+      message: 'string',
+      error: 'string'
+    },
+    Pagination: {
+      pageNo: 'number',
+      numOfRows: 'number',
+      totalCount: 'number'
+    }
+  }
 };
 
-const swaggerSpec = swaggerJsdoc(options);
-const swaggerHtml = swaggerUi.generateHTML(swaggerSpec);
+const outputFile = './src/swagger.json';
+const endpointsFiles = ['./src/main.ts'];
 
-// docs 디렉토리가 없으면 생성
-const docsDir = path.join(__dirname, '../docs');
-if (!fs.existsSync(docsDir)) {
-  fs.mkdirSync(docsDir);
-}
-
-// index.html 파일 생성
-fs.writeFileSync(
-  path.join(docsDir, 'index.html'),
-  `<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Emergency Public Data API Documentation</title>
-  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui.css">
-</head>
-<body>
-  <div id="swagger-ui"></div>
-  <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js"></script>
-  <script>
-    window.onload = () => {
-      window.ui = SwaggerUIBundle({
-        spec: ${JSON.stringify(swaggerSpec)},
-        dom_id: '#swagger-ui',
-        deepLinking: true,
-        presets: [
-          SwaggerUIBundle.presets.apis,
-          SwaggerUIBundle.SwaggerUIStandalonePreset
-        ],
-      });
-    };
-  </script>
-</body>
-</html>`
-);
-
-console.log('Swagger 문서가 docs/index.html에 생성되었습니다.'); 
+swaggerAutogen(outputFile, endpointsFiles, doc).then(() => {
+  console.log('Swagger 문서 생성 완료');
+}); 
