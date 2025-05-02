@@ -32,8 +32,16 @@ $ npm run start:prod
 
 ## API Documentation
 
-API 문서는 Swagger UI를 통해 제공됩니다. 서버 실행 후 다음 URL에서 확인할 수 있습니다:
+API 문서는 다음과 같은 방법으로 확인할 수 있습니다:
 
+### 1. GitHub Pages (추천)
+서버를 실행하지 않고도 API 문서를 확인할 수 있습니다:
+```
+https://J-Ayaan.github.io/emergency
+```
+
+### 2. 로컬 서버 실행 시
+서버를 실행한 후 다음 URL에서 확인할 수 있습니다:
 ```
 http://localhost:3000/api
 ```
