@@ -18,69 +18,56 @@ export class SevereIllnessService {
     private configService: ConfigService
   ) {}
 
-  async getSevereIllnessInfo(params: SevereIllnessRequestDto): Promise<any> {
+  async getSevereIllnessInfo(query: SevereIllnessRequestDto): Promise<SevereIllnessResponseDto> {
     try {
+      const { STAGE1, STAGE2, SM_TYPE, pageNo = '1', numOfRows = '10' } = query;
       const serviceKey = this.configService.get<string>('PUBLIC_DATA_API_KEY');
+      
       if (!serviceKey) {
-        throw new Error('Service key is not configured');
+        throw new Error('PUBLIC_DATA_API_KEY가 설정되지 않았습니다.');
       }
-      
+
+      console.log('=== API 요청 정보 ===');
+      console.log('서비스 키:', serviceKey);
+      console.log('요청 파라미터:', { STAGE1, STAGE2, SM_TYPE, pageNo, numOfRows });
+
       const url = `${this.baseUrl}/getSrsillDissAceptncPosblInfoInqire`;
-      
-      console.log('=== API 호출 시작 ===');
-      console.log('요청 URL:', url);
-      console.log('요청 파라미터:', params);
-      console.log('호출 시각:', new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }));
+      const params = new URLSearchParams();
+      params.append('serviceKey', serviceKey);
+      params.append('STAGE1', STAGE1);
+      params.append('STAGE2', STAGE2);
+      if (SM_TYPE) params.append('SM_TYPE', SM_TYPE);
+      params.append('pageNo', pageNo);
+      params.append('numOfRows', numOfRows);
 
-      const requestParams = {
-        serviceKey,
-        STAGE1: params.STAGE1,
-        STAGE2: params.STAGE2,
-        pageNo: params.pageNo || 1,
-        numOfRows: params.numOfRows || 10,
-      };
+      const fullUrl = `${url}?${params.toString()}`;
+      console.log('요청 URL:', fullUrl);
 
-      // SM_TYPE이 있는 경우에만 파라미터에 추가
-      if (params.SM_TYPE) {
-        requestParams['SM_TYPE'] = params.SM_TYPE;
-      }
-
-      const response = await axios.get(url, {
-        params: requestParams,
+      const response = await axios.get(fullUrl, {
         headers: {
-          Accept: 'application/xml',
-        },
+          'Accept': 'application/xml'
+        }
       });
 
-      console.log('응답 수신 시각:', new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }));
+      console.log('=== API 응답 정보 ===');
+      console.log('응답 상태:', response.status);
+      console.log('응답 헤더:', JSON.stringify(response.headers, null, 2));
       console.log('응답 데이터:', response.data);
-      
-      // XML을 JSON으로 변환
-      const jsonData = await this.parseXmlToJson(response.data);
-      
-      // 응답 코드 확인
-      const resultCode = jsonData?.response?.header?.[0]?.resultCode?.[0];
-      const resultMsg = jsonData?.response?.header?.[0]?.resultMsg?.[0];
-      console.log('응답 코드:', resultCode);
-      console.log('응답 메시지:', resultMsg);
+
+      const result = await xml2js.parseStringPromise(response.data);
+      console.log('=== XML 파싱 결과 ===');
+      console.log(JSON.stringify(result, null, 2));
 
       // 데이터베이스에 저장
-      if (jsonData?.response?.body?.[0]?.items?.[0]?.item) {
-        const items = jsonData.response.body[0].items[0].item;
-        console.log('저장할 데이터 수:', items.length);
-        await this.saveSevereIllnessData(items);
-      } else {
-        console.log('저장할 데이터가 없습니다.');
+      if (result.response?.body?.[0]?.items?.[0]?.item) {
+        await this.saveSevereIllnessData(result.response.body[0].items[0].item);
       }
-
-      console.log('=== API 호출 완료 ===');
-
-      // 응답 변환
-      return this.transformResponse(jsonData);
+      
+      return this.transformResponse(result);
     } catch (error) {
-      console.error('API 호출 오류:', error.message);
+      console.error('Error fetching severe illness info:', error);
       if (error.response) {
-        console.error('오류 응답:', error.response.data);
+        console.error('Error Response:', error.response.data);
       }
       throw error;
     }
@@ -177,7 +164,7 @@ export class SevereIllnessService {
   private async saveSevereIllnessData(items: any[]) {
     try {
       console.log('=== 데이터베이스 저장 시작 ===');
-      console.log('저장 시작 시각:', new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }));
+      console.log('저장할 데이터 수:', items.length);
 
       if (!Array.isArray(items) || items.length === 0) {
         console.log('저장할 데이터가 없습니다.');
@@ -201,7 +188,6 @@ export class SevereIllnessService {
       });
       console.log(`기존 데이터 수: ${existingRecords.length}개`);
 
-      // 새 데이터 변환
       const severeIllnesses = items.map(item => {
         const severeIllness = new SevereIllness();
         
@@ -216,6 +202,8 @@ export class SevereIllnessService {
         const existingRecord = existingRecords.find(record => record.hpid === hpid);
         if (existingRecord) {
           severeIllness.id = existingRecord.id; // 기존 ID 유지
+          severeIllness.createdAt = existingRecord.createdAt; // 생성 시간 유지
+          severeIllness.updatedAt = new Date(); // 업데이트 시간 갱신
         }
 
         severeIllness.hpid = hpid;
@@ -258,7 +246,6 @@ export class SevereIllnessService {
         console.log('저장할 유효한 데이터가 없습니다.');
       }
 
-      console.log('저장 완료 시각:', new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }));
       console.log('=== 데이터베이스 저장 완료 ===');
     } catch (error) {
       console.error('데이터베이스 저장 오류:', error);

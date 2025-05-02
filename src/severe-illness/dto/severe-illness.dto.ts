@@ -1,20 +1,29 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsOptional, IsNumberString } from 'class-validator';
 
 export class SevereIllnessRequestDto {
   @ApiProperty({ description: '주소 시도 (필수)' })
+  @IsString()
   STAGE1: string;  // 주소 시도 (필수)
 
   @ApiProperty({ description: '주소 시군구 (필수)' })
+  @IsString()
   STAGE2: string;  // 주소 시군구 (필수)
 
   @ApiPropertyOptional({ description: '질환 코드 (1~28) (선택)' })
+  @IsString()
+  @IsOptional()
   SM_TYPE?: string;  // 질환 코드 (1~28) (선택)
 
-  @ApiPropertyOptional({ description: '페이지 번호 (선택)', default: 1 })
-  pageNo?: number;  // 페이지 번호 (선택)
+  @ApiPropertyOptional({ description: '페이지 번호 (선택)', default: '1' })
+  @IsNumberString()
+  @IsOptional()
+  pageNo?: string;  // 페이지 번호 (선택)
 
-  @ApiPropertyOptional({ description: '페이지당 건수 (선택)', default: 10 })
-  numOfRows?: number;  // 페이지당 건수 (선택)
+  @ApiPropertyOptional({ description: '페이지당 건수 (선택)', default: '10' })
+  @IsNumberString()
+  @IsOptional()
+  numOfRows?: string;  // 페이지당 건수 (선택)
 }
 
 export class SevereIllnessItemDto {

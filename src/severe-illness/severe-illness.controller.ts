@@ -26,8 +26,8 @@ export class SevereIllnessController {
     status: 500,
     description: '서버 내부 오류',
   })
-  async getSevereIllness(@Query() query: SevereIllnessRequestDto): Promise<SevereIllnessResponseDto> {
-    return this.severeIllnessService.getSevereIllnessInfo(query);
+  async getSevereIllnessInfo(@Query() query: SevereIllnessRequestDto): Promise<SevereIllnessResponseDto> {
+    return await this.severeIllnessService.getSevereIllnessInfo(query);
   }
 
   // @Get('test')
