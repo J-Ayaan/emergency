@@ -28,8 +28,8 @@ export class EmergencyMessageController {
   })
   @ApiQuery({ name: 'HPID', required: false, description: '기관ID' })
   @ApiQuery({ name: 'QN', required: false, description: '기관명' })
-  @ApiQuery({ name: 'Q0', required: false, description: '주소(시도)' })
-  @ApiQuery({ name: 'Q1', required: false, description: '주소(시군구)' })
+  @ApiQuery({ name: 'Q0', required: false, description: '주소(시도)', example: '충청남도' })
+  @ApiQuery({ name: 'Q1', required: false, description: '주소(시군구)', example: '천안시' })
   @ApiQuery({ name: 'pageNo', required: false, description: '페이지 번호', type: 'number' })
   @ApiQuery({ name: 'numOfRows', required: false, description: '목록 건수', type: 'number' })
   async getEmergencyMessage(

@@ -7,28 +7,22 @@ import { EmergencyRoomModule } from './emergency-room/emergency-room.module';
 import { EmergencyBedModule } from './emergency-bed/emergency-bed.module';
 import { SevereIllnessModule } from './severe-illness/severe-illness.module';
 import { EmergencyMessageModule } from './emergency-message/emergency-message.module';
+import { HospitalInfoModule } from './hospital-info/hospital-info.module';
+import { SchedulerModule } from './scheduler/scheduler.module';
+import { databaseConfig } from './config/database.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
     }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '3306'),
-      username: process.env.DB_USERNAME || 'root',
-      password: process.env.DB_PASSWORD || 'root',
-      database: process.env.DB_DATABASE || 'public_data',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: false,
-      logging: true,
-    }),
+    TypeOrmModule.forRoot(databaseConfig()),
+    EmergencyRoomModule,
     EmergencyBedModule,
     SevereIllnessModule,
     EmergencyMessageModule,
-    EmergencyRoomModule,
+    HospitalInfoModule,
+    SchedulerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

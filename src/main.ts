@@ -13,14 +13,15 @@ async function bootstrap() {
     transform: true,
   }));
 
+  // Swagger 설정
   const config = new DocumentBuilder()
-    .setTitle('가제 : 닥터링 or 메디핀')
-    .setDescription('응급실 상황판 개선 버전 API 문서')
+    .setTitle('응급실 정보 API')
+    .setDescription('응급실 실시간 가용병상, 중증질환 수용 가능 병원, 응급실 및 중증질환 메시지 정보를 제공하는 API')
     .setVersion('1.0')
-    .addTag('emergency-bed', '응급실 병상 정보')
-    .addTag('severe-illness', '중증질환자 수용 가능 병원 정보')
-    .addTag('emergency-message', '응급실 메시지')
-    .addTag('emergency-room', '응급실 정보')
+    .addTag('emergency-bed', '응급실 실시간 가용병상 정보')
+    .addTag('severe-illness', '중증질환 수용 가능 병원 정보')
+    .addTag('emergency-message', '응급실 및 중증질환 메시지')
+    .addTag('hospital-info', '통합 병원 정보')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -13,9 +13,9 @@ export class SevereIllnessController {
     summary: '중증질환자 수용 가능 병원 정보 조회',
     description: '지역별 중증질환자 수용 가능 병원의 정보와 치료 가능 질환을 조회합니다.',
   })
-  @ApiQuery({ name: 'STAGE1', description: '시/도', example: '서울특별시' })
-  @ApiQuery({ name: 'STAGE2', description: '시/군/구', example: '강남구' })
-  @ApiQuery({ name: 'SM_TYPE', description: '중증질환 유형', example: '1' })
+  @ApiQuery({ name: 'STAGE1', description: '시/도', example: '충청남도' })
+  @ApiQuery({ name: 'STAGE2', description: '시/군/구', example: '천안시' })
+  @ApiQuery({ name: 'SM_TYPE', description: '중증질환 유형', required: false, example: '1' })
   @ApiQuery({ name: 'pageNo', description: '페이지 번호', required: false, example: '1' })
   @ApiQuery({ name: 'numOfRows', description: '페이지당 결과 수', required: false, example: '10' })
   @ApiResponse({

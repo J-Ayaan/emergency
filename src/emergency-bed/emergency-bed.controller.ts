@@ -13,8 +13,8 @@ export class EmergencyBedController {
     summary: '응급실 실시간 가용병상정보 조회',
     description: '지역별 응급실의 실시간 가용병상 정보를 조회합니다.'
   })
-  @ApiQuery({ name: 'STAGE1', description: '시/도', example: '서울특별시' })
-  @ApiQuery({ name: 'STAGE2', description: '시/군/구', example: '강남구' })
+  @ApiQuery({ name: 'STAGE1', description: '시/도', example: '충청남도' })
+  @ApiQuery({ name: 'STAGE2', description: '시/군/구', example: '천안시' })
   @ApiQuery({ name: 'pageNo', description: '페이지 번호', required: false, example: '1' })
   @ApiQuery({ name: 'numOfRows', description: '페이지당 결과 수', required: false, example: '10' })
   @ApiResponse({ 
