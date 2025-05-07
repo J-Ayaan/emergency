@@ -5,7 +5,6 @@ import { HospitalInfo } from './entities/hospital-info.entity';
 import { EmergencyBed } from '../emergency-bed/entities/emergency-bed.entity';
 import { SevereIllness } from '../severe-illness/entities/severe-illness.entity';
 import { EmergencyMessage } from '../emergency-message/entities/emergency-message.entity';
-import { Not, IsNull } from 'typeorm';
 
 @Injectable()
 export class HospitalInfoService {
@@ -24,7 +23,7 @@ export class HospitalInfoService {
     console.log('=== 통합 데이터 업데이트 시작 ===');
     
     try {
-      // 각 테이블에서 고유한 hpid 목록 가져오기
+      // 응급실 실시간 가용병상정보와 중증질환 수용 가능 병원 정보가 있는 hpid 가져오기
       const emergencyBedHpids = await this.emergencyBedRepository
         .createQueryBuilder('emergencyBed')
         .select('DISTINCT emergencyBed.hpid')
@@ -34,33 +33,27 @@ export class HospitalInfoService {
         .createQueryBuilder('severeIllness')
         .select('DISTINCT severeIllness.hpid')
         .getRawMany();
-      
-      const emergencyMessageHpids = await this.emergencyMessageRepository
-        .createQueryBuilder('emergencyMessage')
-        .select('DISTINCT emergencyMessage.hpid')
-        .getRawMany();
 
-      // 모든 hpid를 하나의 Set으로 통합
-      const allHpids = new Set([
+      // 두 테이블의 hpid를 Set으로 통합
+      const validHpids = new Set([
         ...emergencyBedHpids.map(item => item.hpid),
-        ...severeIllnessHpids.map(item => item.hpid),
-        ...emergencyMessageHpids.map(item => item.hpid)
+        ...severeIllnessHpids.map(item => item.hpid)
       ]);
 
-      console.log(`총 ${allHpids.size}개의 병원 ID 처리 시작`);
+      console.log(`총 ${validHpids.size}개의 유효한 병원 ID 처리 시작`);
 
       // 각 hpid에 대해 데이터 통합
-      for (const hpid of allHpids) {
+      for (const hpid of validHpids) {
         const emergencyBed = await this.emergencyBedRepository.findOne({ where: { hpid } });
         const severeIllness = await this.severeIllnessRepository.findOne({ where: { hpid } });
         const emergencyMessages = await this.emergencyMessageRepository.find({ where: { hpid } });
 
         const hospitalInfo = new HospitalInfo();
+        hospitalInfo.hpid = hpid;
         
         // EmergencyBed 데이터 매핑
         if (emergencyBed) {
           Object.assign(hospitalInfo, {
-            hpid: emergencyBed.hpid,
             dutyName: emergencyBed.dutyName,
             dutyTel3: emergencyBed.dutyTel3,
             hvidate: emergencyBed.hvidate,
@@ -124,7 +117,7 @@ export class HospitalInfoService {
           });
         }
 
-        // EmergencyMessage 데이터 매핑
+        // EmergencyMessage 데이터 매핑 (유효한 hpid에 대해서만)
         if (emergencyMessages && emergencyMessages.length > 0) {
           hospitalInfo.emcOrgCod = emergencyMessages[0].emcOrgCod;
           hospitalInfo.messages = emergencyMessages.map(message => ({
@@ -161,12 +154,7 @@ export class HospitalInfoService {
   }
 
   async getAllHospitalInfo() {
-    return await this.hospitalInfoRepository.find({
-      where: {
-        hpid: Not(IsNull()),
-        dutyName: Not(IsNull())
-      }
-    });
+    return await this.hospitalInfoRepository.find();
   }
 
   async resetDatabase() {

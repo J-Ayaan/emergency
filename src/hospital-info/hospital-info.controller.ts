@@ -32,10 +32,10 @@ export class HospitalInfoController {
     return await this.hospitalInfoService.getAllHospitalInfo();
   }
 
-  // @Get('reset')
-  // @ApiOperation({ summary: '통합 데이터베이스 초기화', description: '통합 데이터베이스를 초기화합니다.' })
-  // @ApiResponse({ status: 200, description: '통합 데이터베이스가 성공적으로 초기화되었습니다.' })
-  // async resetDatabase() {
-  //   return await this.hospitalInfoService.resetDatabase();
-  // }
+  @Get('reset')
+  @ApiOperation({ summary: '통합 데이터베이스 초기화', description: '통합 데이터베이스를 초기화합니다.' })
+  @ApiResponse({ status: 200, description: '통합 데이터베이스가 성공적으로 초기화되었습니다.' })
+  async resetDatabase() {
+    return await this.hospitalInfoService.resetDatabase();
+  }
 } 
