@@ -2,12 +2,16 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { HospitalInfoService } from '../hospital-info/hospital-info.service';
 
 @Injectable()
 export class SchedulerService {
   private readonly logger = new Logger(SchedulerService.name);
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly hospitalInfoService: HospitalInfoService,
+  ) {}
 
   @Cron('*/30 * * * *')
   async handleCron() {
@@ -56,8 +60,15 @@ export class SchedulerService {
       );
       this.logger.debug('응급실 메시지 조회 성공');
 
+      // 데이터 수집이 완료된 후 통합 데이터 업데이트
+      this.logger.debug('통합 데이터 업데이트 시작');
+      await this.hospitalInfoService.updateIntegratedData();
+      this.logger.debug('통합 데이터 업데이트 완료');
+
+      return { message: '데이터 수집 및 통합이 성공적으로 완료되었습니다.' };
     } catch (error) {
-      this.logger.error('스케줄링 작업 중 오류 발생:', error.message);
+      this.logger.error('작업 실행 중 오류 발생:', error.message);
+      throw error;
     }
   }
 } 
