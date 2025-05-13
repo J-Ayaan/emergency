@@ -3,6 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { HospitalInfoService } from '../hospital-info/hospital-info.service';
+import { HospitalStatusService } from '../hospital-info/services/hospital-status.service';
 
 @Injectable()
 export class SchedulerService {
@@ -11,6 +12,7 @@ export class SchedulerService {
   constructor(
     private readonly httpService: HttpService,
     private readonly hospitalInfoService: HospitalInfoService,
+    private readonly hospitalStatusService: HospitalStatusService,
   ) {}
 
   @Cron('*/30 * * * *')
@@ -64,6 +66,11 @@ export class SchedulerService {
       this.logger.debug('통합 데이터 업데이트 시작');
       await this.hospitalInfoService.updateIntegratedData();
       this.logger.debug('통합 데이터 업데이트 완료');
+
+      // 병원 상태 업데이트
+      this.logger.debug('병원 상태 업데이트 시작');
+      await this.hospitalStatusService.updateHospitalStatus();
+      this.logger.debug('병원 상태 업데이트 완료');
 
       return { message: '데이터 수집 및 통합이 성공적으로 완료되었습니다.' };
     } catch (error) {

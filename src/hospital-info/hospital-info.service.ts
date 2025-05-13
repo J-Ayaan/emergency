@@ -5,6 +5,7 @@ import { HospitalInfo } from './entities/hospital-info.entity';
 import { EmergencyBed } from '../emergency-bed/entities/emergency-bed.entity';
 import { SevereIllness } from '../severe-illness/entities/severe-illness.entity';
 import { EmergencyMessage } from '../emergency-message/entities/emergency-message.entity';
+import { EmergencyRoom } from '../emergency-room/entities/emergency-room.entity';
 
 @Injectable()
 export class HospitalInfoService {
@@ -17,6 +18,8 @@ export class HospitalInfoService {
     private readonly severeIllnessRepository: Repository<SevereIllness>,
     @InjectRepository(EmergencyMessage)
     private readonly emergencyMessageRepository: Repository<EmergencyMessage>,
+    @InjectRepository(EmergencyRoom)
+    private readonly emergencyRoomRepository: Repository<EmergencyRoom>,
   ) {}
 
   async updateIntegratedData() {
@@ -47,6 +50,7 @@ export class HospitalInfoService {
         const emergencyBed = await this.emergencyBedRepository.findOne({ where: { hpid } });
         const severeIllness = await this.severeIllnessRepository.findOne({ where: { hpid } });
         const emergencyMessages = await this.emergencyMessageRepository.find({ where: { hpid } });
+        const emergencyRoom = await this.emergencyRoomRepository.findOne({ where: { hpid } });
 
         const hospitalInfo = new HospitalInfo();
         hospitalInfo.hpid = hpid;
@@ -75,6 +79,14 @@ export class HospitalInfoService {
             hvoxyayn: emergencyBed.hvoxyayn,
             hvhypoayn: emergencyBed.hvhypoayn,
             hvamyn: emergencyBed.hvamyn
+          });
+        }
+
+        // EmergencyRoom 데이터 매핑 (위도/경도 정보)
+        if (emergencyRoom) {
+          Object.assign(hospitalInfo, {
+            wgs84Lat: emergencyRoom.wgs84Lat,
+            wgs84Lon: emergencyRoom.wgs84Lon
           });
         }
 

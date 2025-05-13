@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { EmergencyMessageService } from './emergency-message.service';
 import { EmergencyMessageRequestDto, EmergencyMessageResponseDto } from './dto/emergency-message.dto';
-import { ApiTags, ApiQuery, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiQuery, ApiOperation, ApiResponse, ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @ApiTags('응급실 및 중증질환 메시지')
 @Controller('emergency-message')
@@ -67,6 +67,7 @@ export class EmergencyMessageController {
   }
 
   @Get('reset')
+  @ApiExcludeEndpoint()
   @ApiOperation({ summary: '데이터베이스 초기화', description: '응급실 및 중증질환 메시지 데이터베이스를 초기화합니다.' })
   async resetDatabase() {
     return this.emergencyMessageService.resetDatabase();

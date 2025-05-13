@@ -60,6 +60,7 @@ export class SevereIllnessController {
   }
 
   @Get('reset')
+  @ApiExcludeEndpoint()
   @ApiOperation({ summary: '데이터베이스 초기화' })
   @ApiResponse({ status: 200, description: '데이터베이스가 성공적으로 초기화되었습니다.' })
   async resetDatabase() {

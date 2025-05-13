@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { EmergencyRoomService } from './emergency-room.service';
 import { EmergencyRoomRequestDto, EmergencyRoomResponseDto } from './dto/emergency-room.dto';
-import { ApiTags, ApiQuery, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiQuery, ApiOperation, ApiResponse, ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @ApiTags('응급실 정보')
 @Controller('emergency-room')
@@ -76,17 +76,19 @@ export class EmergencyRoomController {
     return this.emergencyRoomService.getEmergencyRoomsFromDb(Q0, Q1, pageNo, numOfRows);
   }
 
-  @Get('reset')
-  @ApiOperation({ summary: '데이터베이스 초기화', description: '응급의료기관 목록정보 데이터베이스를 초기화합니다.' })
-  @ApiResponse({ status: 200, description: '응급의료기관 목록정보 초기화 성공' })
-  async resetDatabase() {
-    return this.emergencyRoomService.resetDatabase();
-  }
-
   @Get('hpid-list')
+  @ApiExcludeEndpoint()
   @ApiOperation({ summary: 'HPID 목록 조회', description: '데이터베이스에 저장된 응급의료기관의 HPID 목록을 조회합니다.' })
   @ApiResponse({ status: 200, description: 'HPID 목록 조회 성공' })
   async getHpidList() {
     return this.emergencyRoomService.getHpidList();
+  }
+
+  @Get('reset')
+  @ApiExcludeEndpoint()
+  @ApiOperation({ summary: '데이터베이스 초기화', description: '응급의료기관 목록정보 데이터베이스를 초기화합니다.' })
+  @ApiResponse({ status: 200, description: '응급의료기관 목록정보 초기화 성공' })
+  async resetDatabase() {
+    return this.emergencyRoomService.resetDatabase();
   }
 } 

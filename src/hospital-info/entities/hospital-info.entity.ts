@@ -192,6 +192,12 @@ export class HospitalInfo {
     symBlkEndDtm: string;
   }>;
 
+  @Column({ length: 30, nullable: true })
+  wgs84Lon: string;       // 병원경도
+
+  @Column({ length: 20, nullable: true })
+  wgs84Lat: string;       // 병원위도
+
   @CreateDateColumn()
   createdAt: Date;
 

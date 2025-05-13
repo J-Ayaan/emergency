@@ -34,6 +34,7 @@ export class EmergencyBedService {
       
       console.log('=== 응급실 실시간 병상 정보 API 호출 ===');
       console.log('요청 URL:', url);
+      console.log('서비스 키:', this.serviceKey);
       console.log('요청 파라미터:', {
         ...requestDto,
         pageNo: requestDto.pageNo || defaultPageNo,

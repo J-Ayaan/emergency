@@ -1,7 +1,7 @@
 import { Controller, Get, Query, ValidationPipe } from '@nestjs/common';
 import { EmergencyBedService } from './emergency-bed.service';
 import { EmergencyBedRequestDto, EmergencyBedResponseDto } from './dto/emergency-bed.dto';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags, ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @ApiTags('응급실 실시간 가용병상정보')
 @Controller('emergency-bed')
@@ -107,6 +107,7 @@ export class EmergencyBedController {
   }
 
   @Get('reset')
+  @ApiExcludeEndpoint()
   @ApiOperation({ summary: '데이터베이스 초기화' })
   @ApiResponse({ status: 200, description: '데이터베이스가 성공적으로 초기화되었습니다.' })
   async resetDatabase() {
