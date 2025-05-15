@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { HospitalInfo } from '../../hospital-info/entities/hospital-info.entity';
 
 @Entity()
 export class EmergencyMessage {
@@ -49,4 +50,8 @@ export class EmergencyMessage {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => HospitalInfo, hospitalInfo => hospitalInfo.messages)
+  @JoinColumn({ name: 'hpid', referencedColumnName: 'hpid' })
+  hospitalInfo: HospitalInfo;
 } 

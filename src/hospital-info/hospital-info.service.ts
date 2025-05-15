@@ -132,16 +132,6 @@ export class HospitalInfoService {
         // EmergencyMessage 데이터 매핑 (유효한 hpid에 대해서만)
         if (emergencyMessages && emergencyMessages.length > 0) {
           hospitalInfo.emcOrgCod = emergencyMessages[0].emcOrgCod;
-          hospitalInfo.messages = emergencyMessages.map(message => ({
-            symBlkMsg: message.symBlkMsg,
-            symBlkMsgTyp: message.symBlkMsgTyp,
-            symTypCod: message.symTypCod,
-            symTypCodMag: message.symTypCodMag,
-            symOutDspYon: message.symOutDspYon,
-            symOutDspMth: message.symOutDspMth,
-            symBlkSttDtm: message.symBlkSttDtm,
-            symBlkEndDtm: message.symBlkEndDtm
-          }));
         }
 
         // 기존 데이터 확인 및 업데이트 또는 새로 저장
@@ -166,7 +156,50 @@ export class HospitalInfoService {
   }
 
   async getAllHospitalInfo() {
-    return await this.hospitalInfoRepository.find();
+    const hospitals = await this.hospitalInfoRepository.find({
+      relations: ['messages'],
+    });
+
+    return hospitals.map(hospital => {
+      // 메시지 가공
+      const processedMessages = this.processMessages(hospital.messages);
+      
+      return {
+        ...hospital,
+        messages: processedMessages,
+      };
+    });
+  }
+
+  private processMessages(messages: EmergencyMessage[]) {
+    if (!messages || messages.length === 0) {
+      return [];
+    }
+
+    // 메시지를 symBlkMsg로 그룹화
+    const messageGroups = messages.reduce((groups, message) => {
+      const key = message.symBlkMsg;
+      if (!groups[key]) {
+        groups[key] = {
+          symBlkMsg: message.symBlkMsg,
+          symTypCod: message.symTypCod,
+          symTypCodMagList: [message.symTypCodMag],
+          symOutDspYon: message.symOutDspYon,
+          symOutDspMth: message.symOutDspMth,
+          symBlkSttDtm: message.symBlkSttDtm,
+          symBlkEndDtm: message.symBlkEndDtm,
+        };
+      } else {
+        // 이미 존재하는 메시지 그룹에 symTypCodMag 추가
+        if (!groups[key].symTypCodMagList.includes(message.symTypCodMag)) {
+          groups[key].symTypCodMagList.push(message.symTypCodMag);
+        }
+      }
+      return groups;
+    }, {});
+
+    // 그룹화된 메시지를 배열로 변환
+    return Object.values(messageGroups);
   }
 
   async resetDatabase() {

@@ -1,11 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, Index } from 'typeorm';
+import { EmergencyMessage } from '../../emergency-message/entities/emergency-message.entity';
 
 @Entity()
 export class HospitalInfo {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: true })
+  @Index()
+  @Column()
   hpid: string;  // 병원 ID
 
   // EmergencyBed 정보
@@ -180,17 +182,8 @@ export class HospitalInfo {
   emcOrgCod: string;
 
   // 메시지 배열을 JSON 형태로 저장
-  @Column({ type: 'json', nullable: true })
-  messages: Array<{
-    symBlkMsg: string;
-    symBlkMsgTyp: string;
-    symTypCod: string;
-    symTypCodMag: string;
-    symOutDspYon: string;
-    symOutDspMth: string;
-    symBlkSttDtm: string;
-    symBlkEndDtm: string;
-  }>;
+  @OneToMany(() => EmergencyMessage, message => message.hospitalInfo)
+  messages: EmergencyMessage[];
 
   @Column({ length: 30, nullable: true })
   wgs84Lon: string;       // 병원경도
